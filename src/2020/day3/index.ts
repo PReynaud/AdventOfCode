@@ -10,7 +10,7 @@ export interface Movement {
   toBottom: number;
 }
 
-export function getNextAxisPosition(
+export function getNextXAxisPosition(
   initialPosition: number,
   movement: number,
   mapSize: number
@@ -22,20 +22,20 @@ export function getNextAxisPosition(
   return newPosition;
 }
 
+export function getNextYAxisPosition(
+  initialPosition: number,
+  movement: number
+): number {
+  const newPosition = initialPosition + movement;
+  return newPosition;
+}
+
 export function getMapXSize(map: string[]): number {
-  return map[0].length || 0;
+  return map && map.length > 0 ? map[0].trim().length : 0;
 }
 
 export function getValue(map: string[], position: Position): string {
-  return map[position.y][position.x];
-}
-
-export function getNextPositionValue(
-  map: string[],
-  initialPosition: Position,
-  movement: Movement
-): string {
-  return getValue(map, getNextPosition(map, initialPosition, movement));
+  return map[position.y].charAt(position.x);
 }
 
 export function getNextPosition(
@@ -44,22 +44,20 @@ export function getNextPosition(
   movement: Movement
 ): Position {
   return {
-    x: getNextAxisPosition(
+    x: getNextXAxisPosition(
       initialPosition.x,
       movement.toRight,
       getMapXSize(map)
     ),
-    y: getNextAxisPosition(initialPosition.y, movement.toBottom, map.length),
+    y: getNextYAxisPosition(initialPosition.y, movement.toBottom),
   };
 }
 
-export function hasReachBottom(
+export function isBeyondBottomLimit(
   map: string[],
-  initialPosition: Position,
-  movement: Movement
+  position: Position
 ): boolean {
-  const newY = initialPosition.y + movement.toBottom;
-  return newY >= map.length;
+  return position.y >= map.length;
 }
 
 export function cloneMap(map: string[]): string[] {
@@ -78,32 +76,51 @@ export function displayPosition(map: string[], position: Position): void {
   const clonedMap: string[] = cloneMap(map);
   const currentLine = clonedMap[position.y];
   const currentLineChars = currentLine.split('');
-  currentLineChars[position.x] = 'O';
-  clonedMap[position.y] = currentLineChars.join();
+  if (currentLineChars[position.x] === '.') {
+    currentLineChars[position.x] = 'O';
+  } else {
+    currentLineChars[position.x] = 'X';
+  }
+  clonedMap[position.y] = currentLineChars.join('');
 
-  clonedMap.forEach((l) => console.log(l));
+  console.log(clonedMap.join('\n'))
+}
+
+export function getFinalResult(map: string[], movement: Movement): number {
+  let currentPosition: Position = {
+    x: 0,
+    y: 0
+  };
+  let result = 0;
+
+  let isBeyondLimit = false
+  while (!isBeyondLimit) {
+    // displayPosition(map, currentPosition);
+    
+    currentPosition = getNextPosition(map, currentPosition, movement);
+    isBeyondLimit = isBeyondBottomLimit(map, currentPosition)
+    if (!isBeyondLimit) {
+      const hitTree = getValue(map, currentPosition) === '#'
+      console.log('Current position', currentPosition, hitTree);
+      if (hitTree) {
+        result++;
+      }
+    }
+  } 
+
+  return result;
 }
 
 export async function part1() {
   console.log('Start program day 3 - Part 1');
 
   const map: string[] = await readFile('./src/2020/day3/input.txt');
-  let currentPosition = { x: 0, y: 0 };
   const movement: Movement = {
     toRight: 3,
     toBottom: 1,
   };
-  let result = 0;
 
-  while (!hasReachBottom(map, currentPosition, movement)) {
-    console.log('Current position', currentPosition);
-    // displayPosition(map, currentPosition);
-
-    if (getNextPositionValue(map, currentPosition, movement) === '#') {
-      result++;
-    }
-    currentPosition = getNextPosition(map, currentPosition, movement);
-  }
+  const result = getFinalResult(map, movement);
 
   console.log('The result is: ', result);
 }
@@ -111,5 +128,32 @@ export async function part1() {
 export async function part2() {
   console.log('Start program day 3 - Part 2');
 
-  const values: string[] = await readFile('./src/2020/day3/input.txt');
+  const map: string[] = await readFile('./src/2020/day3/input.txt');
+  const movements: Movement[] = [
+    {
+    toRight: 1,
+    toBottom: 1,
+  },
+    {
+    toRight: 3,
+    toBottom: 1,
+  },
+    {
+    toRight: 5,
+    toBottom: 1,
+  },
+    {
+    toRight: 7,
+    toBottom: 1,
+  },
+    {
+    toRight: 1,
+    toBottom: 2,
+  }
+];
+
+  const reducer = (accumulator: number, movement: Movement) => accumulator * getFinalResult(map, movement);
+  const result = movements.reduce(reducer, 1)
+
+  console.log('The result is: ', result);
 }

@@ -1,20 +1,22 @@
 import {
-  getNextAxisPosition,
-  getNextPositionValue,
-  hasReachBottom,
+  getNextXAxisPosition,
   getNextPosition,
+  Movement,
+  getFinalResult,
+  isBeyondBottomLimit,
 } from '.';
 
 describe('Day 3', () => {
   it('should calculate next position', () => {
-    expect(getNextAxisPosition(0, 1, 5)).toBe(1);
-    expect(getNextAxisPosition(0, 2, 5)).toBe(2);
-    expect(getNextAxisPosition(0, 4, 5)).toBe(4);
-    expect(getNextAxisPosition(1, 2, 5)).toBe(3);
+    expect(getNextXAxisPosition(0, 1, 5)).toBe(1);
+    expect(getNextXAxisPosition(0, 2, 5)).toBe(2);
+    expect(getNextXAxisPosition(0, 4, 5)).toBe(4);
+    expect(getNextXAxisPosition(0, 5, 5)).toBe(0);
+    expect(getNextXAxisPosition(1, 5, 5)).toBe(1);
+    expect(getNextXAxisPosition(2, 5, 5)).toBe(2);
+    expect(getNextXAxisPosition(4, 5, 5)).toBe(4);
+    expect(getNextXAxisPosition(4, 1, 5)).toBe(0);
 
-    expect(getNextAxisPosition(0, 5, 5)).toBe(0);
-    expect(getNextAxisPosition(0, 6, 5)).toBe(1);
-    expect(getNextAxisPosition(2, 3, 5)).toBe(0);
   });
 
   const testMap = [
@@ -30,74 +32,6 @@ describe('Day 3', () => {
     '#...##....#',
     '.#..#...#.#',
   ];
-
-  it('should get next value', () => {
-    expect(
-      getNextPositionValue(
-        testMap,
-        {
-          x: 0,
-          y: 0,
-        },
-        {
-          toRight: 1,
-          toBottom: 1,
-        }
-      )
-    ).toBe('.');
-    expect(
-      getNextPositionValue(
-        testMap,
-        {
-          x: 0,
-          y: 0,
-        },
-        {
-          toRight: 2,
-          toBottom: 0,
-        }
-      )
-    ).toBe('#');
-    expect(
-      getNextPositionValue(
-        testMap,
-        {
-          x: 0,
-          y: 0,
-        },
-        {
-          toRight: 3,
-          toBottom: 0,
-        }
-      )
-    ).toBe('#');
-    expect(
-      getNextPositionValue(
-        testMap,
-        {
-          x: 0,
-          y: 0,
-        },
-        {
-          toRight: 4,
-          toBottom: 0,
-        }
-      )
-    ).toBe('.');
-    expect(
-      getNextPositionValue(
-        testMap,
-        {
-          x: 0,
-          y: 0,
-        },
-        {
-          toRight: 14,
-          toBottom: 0,
-        }
-      )
-    ).toBe('#');
-  });
 
   it('should return the next position', () => {
     expect(
@@ -115,13 +49,25 @@ describe('Day 3', () => {
 
   it('should indicate if the bottom has been reached', () => {
     expect(
-      hasReachBottom(testMap, { x: 0, y: 0 }, { toRight: 0, toBottom: 10 })
+      isBeyondBottomLimit(testMap, { x: 0, y: 0 })
     ).toBeFalsy();
     expect(
-      hasReachBottom(testMap, { x: 0, y: 0 }, { toRight: 0, toBottom: 11 })
+      isBeyondBottomLimit(testMap, { x: 0, y: 12 })
     ).toBeTruthy();
     expect(
-      hasReachBottom(testMap, { x: 0, y: 0 }, { toRight: 0, toBottom: 12 })
+      isBeyondBottomLimit(testMap, { x: 5, y: 10 })
+    ).toBeFalsy();
+    expect(
+      isBeyondBottomLimit(testMap, { x: 5, y: 11 })
     ).toBeTruthy();
   });
+
+  it('should calculate the right result from a simple map', () => {
+    let initialPosition = { x: 0, y: 0 };
+    const movement: Movement = {
+      toRight: 3,
+      toBottom: 1,
+    };
+    expect(getFinalResult(testMap, movement)).toEqual(7);
+  })
 });
