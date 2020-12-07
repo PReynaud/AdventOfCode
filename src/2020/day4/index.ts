@@ -1,4 +1,4 @@
-import { readFile } from "../../utils/file.utils";
+import { readFile } from '../../utils/file.utils';
 
 enum ExpectedFieldEnum {
   'byr',
@@ -8,7 +8,7 @@ enum ExpectedFieldEnum {
   'hcl',
   'ecl',
   'pid',
-  'cid'
+  'cid',
 }
 
 const AllAvailableFields = [
@@ -19,16 +19,16 @@ const AllAvailableFields = [
   'hcl',
   'ecl',
   'pid',
-  'cid'
-]
+  'cid',
+];
 
 export function checkNumbers(value: string, min: number, max: number): boolean {
-  const toTest = Number(value)
-  return toTest >= min && toTest <= max
+  const toTest = Number(value);
+  return toTest >= min && toTest <= max;
 }
 
 export function checkHeight(value: string): boolean {
-  const regex = /\d+(cm|in)$/
+  const regex = /\d+(cm|in)$/;
   if (!value.match(regex)) {
     return false;
   }
@@ -36,50 +36,42 @@ export function checkHeight(value: string): boolean {
   const foundUnit = value.match(/\D+/);
   const foundNumber = value.match(/\d+/);
   if (foundUnit && foundNumber && foundUnit[0] === 'cm') {
-    return checkNumbers(foundNumber[0]!, 150, 193)
+    return checkNumbers(foundNumber[0]!, 150, 193);
   } else if (foundNumber) {
-    return checkNumbers(foundNumber[0]!, 59, 76)
+    return checkNumbers(foundNumber[0]!, 59, 76);
   }
-  return false
+  return false;
 }
 
 export function checkHairColor(value: string): boolean {
-  const match = value.match(/^#(([0-9]|[a-f]){6})$/)
+  const match = value.match(/^#(([0-9]|[a-f]){6})$/);
   return match ? match.length > 0 : false;
 }
 
 export function checkEyeColor(value: string): boolean {
-  const availableValues = [
-    'amb',
-    'blu',
-    'brn',
-    'gry',
-    'grn',
-    'hzl',
-    'oth'
-  ]
+  const availableValues = ['amb', 'blu', 'brn', 'gry', 'grn', 'hzl', 'oth'];
   return availableValues.includes(value);
 }
 
 export function checkPassportId(value: string): boolean {
-  const match = value.match(/^\d{9}$/)
+  const match = value.match(/^\d{9}$/);
   return match ? match.length > 0 : false;
 }
 
 const allRules: Record<string, (value: string) => boolean> = {
-  'byr': (value: string) => checkNumbers(value, 1920, 2002),
-  'iyr': (value: string) => checkNumbers(value, 2010, 2020),
-  'eyr': (value: string) => checkNumbers(value, 2020, 2030),
-  'hgt': (value: string) => checkHeight(value),
-  'hcl': (value: string) => checkHairColor(value),
-  'ecl': (value: string) => checkEyeColor(value),
-  'pid': (value: string) => checkPassportId(value),
-  'cid': (value: string) => true,
-}
+  byr: (value: string) => checkNumbers(value, 1920, 2002),
+  iyr: (value: string) => checkNumbers(value, 2010, 2020),
+  eyr: (value: string) => checkNumbers(value, 2020, 2030),
+  hgt: (value: string) => checkHeight(value),
+  hcl: (value: string) => checkHairColor(value),
+  ecl: (value: string) => checkEyeColor(value),
+  pid: (value: string) => checkPassportId(value),
+  cid: (value: string) => true,
+};
 
 interface Information {
-  field: keyof typeof ExpectedFieldEnum,
-  value: string
+  field: keyof typeof ExpectedFieldEnum;
+  value: string;
 }
 
 function isFieldAvailable(rawField: string): boolean {
@@ -87,7 +79,7 @@ function isFieldAvailable(rawField: string): boolean {
 }
 
 function isFieldValid(rawField: string, value: string): boolean {
-  // return true; // Part 1 
+  // return true; // Part 1
   return allRules[rawField](value);
 }
 
@@ -98,37 +90,37 @@ function parseInformation(rawInformation: string): Information | null {
   if (isFieldAvailable(rawField) && isFieldValid(rawField, value)) {
     return {
       field: rawField,
-      value
-    }
+      value,
+    };
   }
-    return null;
+  return null;
 }
 
 function parseLine(line: string): Information[] {
-  const allCouples = line.trim().split(' ')
-  const results: Information[] = []
-  allCouples.forEach(couple => {
-    const parsedInformation = parseInformation(couple)
+  const allCouples = line.trim().split(' ');
+  const results: Information[] = [];
+  allCouples.forEach((couple) => {
+    const parsedInformation = parseInformation(couple);
     if (parsedInformation) {
-      results.push(parsedInformation)
+      results.push(parsedInformation);
     }
-  })
+  });
   return results;
 }
 
 class Passport {
-  public fields: Information[]
+  public fields: Information[];
 
   constructor(allLines: string[]) {
-    this.fields = []
-    allLines.forEach(line => this.fields.push(...parseLine(line)))
+    this.fields = [];
+    allLines.forEach((line) => this.fields.push(...parseLine(line)));
   }
 
   isValid(): boolean {
     if (this.fields.length === 8) {
       return true;
     } else if (this.fields.length === 7) {
-      return this.fields.every(field => field.field !== 'cid')
+      return this.fields.every((field) => field.field !== 'cid');
     } else {
       return false;
     }
@@ -136,16 +128,16 @@ class Passport {
 }
 
 export function separatePassports(allPassports: string[]): Passport[] {
-  const results: Passport[] = []
-  let currentPassport: string[] = []
-  allPassports.forEach(line => {
+  const results: Passport[] = [];
+  let currentPassport: string[] = [];
+  allPassports.forEach((line) => {
     if (line === '\r') {
       results.push(new Passport(currentPassport));
-      currentPassport = []
+      currentPassport = [];
     } else {
-      currentPassport.push(line)
+      currentPassport.push(line);
     }
-  })
+  });
   results.push(new Passport(currentPassport));
   return results;
 }
@@ -155,7 +147,7 @@ export async function part1() {
 
   const allRawPassports: string[] = await readFile('./src/2020/day4/input.txt');
   const allPassports = separatePassports(allRawPassports);
-  const result = allPassports.filter(passport => passport.isValid()).length;
+  const result = allPassports.filter((passport) => passport.isValid()).length;
 
   console.log('The result is: ', result);
 }
@@ -165,7 +157,7 @@ export async function part2() {
 
   const allRawPassports: string[] = await readFile('./src/2020/day4/input.txt');
   const allPassports = separatePassports(allRawPassports);
-  const result = allPassports.filter(passport => passport.isValid()).length;
+  const result = allPassports.filter((passport) => passport.isValid()).length;
 
   console.log('The result is: ', result);
 }

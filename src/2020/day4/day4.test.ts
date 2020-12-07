@@ -1,4 +1,4 @@
-import { checkHeight, checkNumbers, checkHairColor } from "."
+import { checkHeight, checkNumbers, checkHairColor } from '.';
 
 describe('Day 4 ', () => {
   it('should check value between two numbers', () => {
@@ -11,7 +11,7 @@ describe('Day 4 ', () => {
     expect(checkNumbers('1919', 1920, 2002)).toBeFalsy();
     expect(checkNumbers('2003', 1920, 2002)).toBeFalsy();
     expect(checkNumbers('192cm', 1920, 2002)).toBeFalsy();
-  })
+  });
 
   it('should check height', () => {
     expect(checkHeight('159cm')).toBeTruthy();
@@ -25,15 +25,15 @@ describe('Day 4 ', () => {
     expect(checkHeight('76c')).toBeFalsy();
     expect(checkHeight('76cm')).toBeFalsy();
     expect(checkHeight('190in')).toBeFalsy();
-  })
+  });
 
-  it ('should check hair color', () => {
+  it('should check hair color', () => {
     expect(checkHairColor('#123456')).toBeTruthy();
     expect(checkHairColor('#abcdef')).toBeTruthy();
     expect(checkHairColor('#12cd56')).toBeTruthy();
-    
+
     expect(checkHairColor('#12cd5')).toBeFalsy();
     expect(checkHairColor('#12cd5A')).toBeFalsy();
     expect(checkHairColor('#12cd5g')).toBeFalsy();
-  })
-})
+  });
+});
