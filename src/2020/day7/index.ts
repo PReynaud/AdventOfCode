@@ -1,4 +1,5 @@
 import { readFile } from '../../utils/file.utils';
+export * from './part2';
 
 export interface Bag {
   name: string;
@@ -61,12 +62,4 @@ export async function part1() {
   const result = sortAllBags({ name: 'shiny gold', content: [] }, allBags);
 
   console.log('The result is: ', result.length - 1);
-}
-
-export async function part2() {
-  console.log('Start program day 6 - Part 2');
-
-  const allGroups: string[] = await readFile('./src/2020/day7/input.txt');
-
-  // console.log('The result is: ', result);
 }
