@@ -49,14 +49,10 @@ function findRangeNumber(
   const searchValueIndex: number = numberList.find((v) => v === searchValue)!;
   let currentIndex = firstIndex;
   let accumulator = 0;
-  while (accumulator <= searchValue && currentIndex <= searchValueIndex) {
-    console.log('Test range', firstIndex, currentIndex);
-
+  while (accumulator < searchValue && currentIndex <= searchValueIndex) {
     accumulator += numberList[currentIndex];
     currentIndex++;
   }
-
-  console.log('Accumulator value', accumulator);
 
   if (accumulator === searchValue) {
     return [firstIndex, currentIndex];
@@ -64,21 +60,33 @@ function findRangeNumber(
   return [];
 }
 
-// function testMultipleRanges(
-//   numberList: number[],
-//   searchValue: number
-// ): number[] {
-//   let result: number[] = [];
-//   let currentFirstIndex = 0;
-//   while (result.length === 0) {
-//     console.log('Test first index', currentFirstIndex)
+function testMultipleRanges(
+  numberList: number[],
+  searchValue: number
+): number[] {
+  let result: number[] = [];
+  let currentFirstIndex = 0;
+  while (result.length === 0) {
+    result = findRangeNumber(numberList, searchValue, currentFirstIndex);
+    currentFirstIndex++;
+  }
 
-//     result = findRangeNumber(numberList, searchValue, currentFirstIndex);
-//     currentFirstIndex++;
-//   }
+  return result;
+}
 
-//   return result;
-// }
+function findMinMaxInRange(numberList: number[]) {
+  let min = numberList[0],
+    max = 0;
+  numberList.forEach((num) => {
+    if (num < min) {
+      min = num;
+    }
+    if (num > max) {
+      max = num;
+    }
+  });
+  return { min, max };
+}
 
 export async function part1() {
   console.log('Start program day 9 - Part 1');
@@ -95,10 +103,10 @@ export async function part2() {
 
   const list: string[] = await readFile('./src/2020/day9/input.txt');
   const allNumbers: number[] = parseListOfNumbers(list);
-  findRangeNumber(allNumbers, 127, 0);
-  findRangeNumber(allNumbers, 127, 1);
-  findRangeNumber(allNumbers, 127, 2);
-  findRangeNumber(allNumbers, 127, 3);
+  const resultIndex = testMultipleRanges(allNumbers, 1504371145);
+  const filteredArray = allNumbers.slice(resultIndex[0], resultIndex[1]);
+  console.log('Filtered array', filteredArray);
+  const result = findMinMaxInRange(filteredArray);
 
-  console.log('The result is: ');
+  console.log('The result is: ', result, result.min + result.max);
 }
